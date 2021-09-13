@@ -1,2 +1,5 @@
 include_directories(../include)
-add_executable(T2W_cli main.cpp)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+add_executable(Tiny2Wheel_cli main.cpp test.cpp)

@@ -4,6 +4,7 @@ build_arduino () {
     echo "### BUILDING ARDUINO ###"
     cd arduino
     cmake -S . -B ../out/build/arduino -DCMAKE_TOOLCHAIN_FILE=./Arduino-CMake-NG/cmake/Arduino-Toolchain.cmake -G "MinGW Makefiles"
+    cmake --build ../out/build/arduino
     cd $intial_dir
 } 
 
@@ -11,6 +12,7 @@ build_cli () {
     echo "### BUILDING CLI ###"
     cd cli
     cmake -S . -B ../out/build/cli -G "MinGW Makefiles"
+    cmake --build ../out/build/cli
     cd $intial_dir
 }
 
@@ -34,7 +36,7 @@ then
 elif [[ $1 == "cli" ]]
 then
     build_cli
-elif [[$1 == "all" ]]
+elif [[ $1 == "all" ]]
 then
     build_arduino
     build_cli
