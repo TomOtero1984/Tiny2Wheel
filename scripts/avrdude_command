@@ -1,1 +1,2 @@
-avrdude -v -p atmega328p -c arduino -P COM6 -b 115200 -D -U Hello_World.hex -C "C:\Program Files (x86)\Arduino\hardware\tools\avr\etc\avrdude.conf"
+# Make an environment variable for avr_conf
+avrdude -v -p atmega328p -c arduino -P COM5 -b 115200 -D -U T2W_arduino.hex -C "%avr_conf%"
