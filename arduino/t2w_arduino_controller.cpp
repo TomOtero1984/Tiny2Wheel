@@ -1,4 +1,9 @@
 #include "Arduino.h"
+void blink();
+void setup();
+void loop();
+void serial_clear_incoming_buffer();
+
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
