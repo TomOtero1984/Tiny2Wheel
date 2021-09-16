@@ -10,14 +10,16 @@ void setup() {
     Serial.begin(115200);
 }
 
+
+int ser_in = 0;
+bool connected = false; 
 void loop() {
     // Blink, because why not...
-    blink();
+    // blink();
     // Serial Read
-    int ser_in = 0;
-    ser_in = Serial.read();
-    if (ser_in >= 0){
-        Serial.println(ser_in);
+    if (Serial.available() > 0){
+        ser_in = Serial.read();
+        Serial.write(ser_in);
         ser_in = 0;
     }
 }

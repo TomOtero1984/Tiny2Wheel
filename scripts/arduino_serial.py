@@ -2,6 +2,7 @@ import sys
 import argparse
 import serial
 import yaml
+import time
 from enum import Enum
 
 
@@ -41,15 +42,27 @@ def safe_quit():
 
 # Serial Functions
 def ser_connect(port, baudrate):
-    serial_read_timeout = 5
-    serial_write_timeout = 10
+    serial_read_timeout = 0
+    serial_write_timeout = 0
     ser = serial.Serial(
             port=port,
             baudrate=baudrate,
             timeout=serial_read_timeout,
             write_timeout=serial_write_timeout,
         )
+    if not ser_ack(ser):
+        print(False)
+        exit()
+    print(True)
     return ser
+
+def ser_ack(ser):
+    time.sleep(1)
+    ack = ser.readline().decode("UTF-8")
+    print(ack)
+    if ack == "HI":
+        return True
+    return False
 
 
 ### CommandHandler class and related functions ###
@@ -57,18 +70,27 @@ class CommandHandler():
     @staticmethod
     def write():
         msg = input("WRITE>")
-        ser.write(msg.encode())
+        ser.write(msg.encode("UTF-8"))
     
     @staticmethod
     def read():
-        msg = []
-        msg.append(ser.readline().decode("UTF-8"))
-        print(msg)
+        msg = ""
+        # msg.append(ser.readline().decode("ASCII"))
+        print(ser.readline().decode("UTF-8", "ignore"))
+        # print(msg)
+    
+    @staticmethod
+    def test():
+        print("WRITE> test")
+        ser.write("test".encode("UTF-8"))
+        time.sleep(1)
+        CommandHandler.read()
 
 class ValidCommands(Enum):
     QUIT = 0
     WRITE = 1
     READ = 2
+    TEST = 3
 
     @staticmethod
     def help():
@@ -80,6 +102,7 @@ class ValidCommands(Enum):
 CommandHandler.switch = {
     "WRITE": CommandHandler.write,
     "READ": CommandHandler.read,
+    "TEST": CommandHandler.test,
     "QUIT" : safe_quit
 }
 
