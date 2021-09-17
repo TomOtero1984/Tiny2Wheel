@@ -50,34 +50,28 @@ def ser_connect(port, baudrate):
             timeout=serial_read_timeout,
             write_timeout=serial_write_timeout,
         )
-    if not ser_ack(ser):
-        print(False)
-        exit()
-    print(True)
     return ser
-
-def ser_ack(ser):
-    time.sleep(1)
-    ack = ser.readline().decode("UTF-8")
-    print(ack)
-    if ack == "HI":
-        return True
-    return False
-
+    
 
 ### CommandHandler class and related functions ###
 class CommandHandler():
     @staticmethod
     def write():
-        msg = input("WRITE>")
+        msg = input("WRITE> ")
         ser.write(msg.encode("UTF-8"))
     
     @staticmethod
     def read():
-        msg = ""
-        # msg.append(ser.readline().decode("ASCII"))
-        print(ser.readline().decode("UTF-8", "ignore"))
-        # print(msg)
+        try:
+            msg = ser.readline()
+        except Exception as e:
+            print(e)
+
+        print(msg)
+        try:
+            print(msg.decode("UTF-8"))
+        except Exception as e:
+            print(e)
     
     @staticmethod
     def test():
@@ -106,7 +100,7 @@ CommandHandler.switch = {
     "QUIT" : safe_quit
 }
 
-def command_handler_script(ser, usr_input):
+def command_handler_script(usr_input):
     usr_input = usr_input.upper()
     if not hasattr(ValidCommands, usr_input):
         print("\n[ERROR] Invalid input!")
@@ -125,7 +119,7 @@ def main():
     usr_input = ""
     while(True):
         usr_input = input("> ")
-        command_handler_script(ser, usr_input)
+        command_handler_script(usr_input)
 
 
 
