@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 import serial
 import yaml
@@ -12,8 +13,12 @@ DEFAULT_BAUD = 115200
 args = {"port": DEFAULT_PORT, "baud": DEFAULT_BAUD}
 
 # Yaml args
+if os.getcwd().endswith("scripts"):
+    config_path = "arduino_serial.yaml"
+else:
+    config_path = "scripts/arduino_serial.yaml"
 try:
-    with open("arduino_serial.yaml", "r") as stream:
+    with open(config_path, "r") as stream:
         args = yaml.safe_load(stream)
 except Exception as e:
     print(f"[DEBUG] Exception: {e}")
@@ -58,6 +63,7 @@ class CommandHandler():
     @staticmethod
     def write():
         msg = input("WRITE> ")
+        msg = msg + "\n"
         ser.write(msg.encode("UTF-8"))
     
     @staticmethod
@@ -76,7 +82,7 @@ class CommandHandler():
     @staticmethod
     def test():
         print("WRITE> test")
-        ser.write("test".encode("UTF-8"))
+        ser.write("test\n".encode("UTF-8"))
         time.sleep(1)
         CommandHandler.read()
 
