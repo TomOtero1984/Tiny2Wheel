@@ -2,3 +2,6 @@
 [submodule "arduino/Arduino-CMake-NG"]
 	path = arduino/Arduino-CMake-NG
 	url = git@github.com:arduino-cmake/Arduino-CMake-NG.git
+[submodule "cli/serial"]
+	path = cli/serial
+	url = git@github.com:wjwwood/serial.git
