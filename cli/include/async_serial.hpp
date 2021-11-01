@@ -6,7 +6,7 @@
 class AsyncSerial
 {
 public:
-    AsyncSerial(std::string port, int baud);
+    AsyncSerial(std::string port, int baud, asio::io_context &io_context);
 
     void signal_callback_handler(int signum);
     void print_buffer(asio::streambuf &buffer);
@@ -15,8 +15,9 @@ public:
               asio::error_code &ec);
     void async_read();
     void async_write(std::string msg);
-    void handler(const asio::error_code &ec, std::size_t bytes_transferred);
-    asio::io_context io_context;
+    static void handler(const asio::error_code &ec, std::size_t bytes_transferred);
+    
+    asio::io_context& io_context_;
     asio::serial_port serial;
     asio::streambuf buffer;
 };

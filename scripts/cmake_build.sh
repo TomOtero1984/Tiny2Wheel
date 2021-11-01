@@ -3,16 +3,16 @@
 build_arduino () {
     echo "### BUILDING ARDUINO ###"
     cd arduino
-    cmake -S . -B ../out/build/arduino -DCMAKE_TOOLCHAIN_FILE=./Arduino-CMake-NG/cmake/Arduino-Toolchain.cmake -G "MinGW Makefiles"
-    cmake --build ../out/build/arduino
+    cmake -S . -B ../build/arduino -DCMAKE_TOOLCHAIN_FILE=./Arduino-CMake-NG/cmake/Arduino-Toolchain.cmake -G "MinGW Makefiles"
+    cmake --build ../build/arduino
     cd $intial_dir
 } 
 
 build_cli () {
     echo "### BUILDING CLI ###"
     cd cli
-    cmake -S . -B ../out/build/cli -G "MinGW Makefiles"
-    cmake --build ../out/build/cli
+    cmake -S . -B ../build/cli -G "MinGW Makefiles"
+    # cmake --build ..build/cli
     cd $intial_dir
 }
 

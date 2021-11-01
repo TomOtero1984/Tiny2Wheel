@@ -69,22 +69,31 @@ class CommandHandler():
     @staticmethod
     def read():
         try:
-            msg = ser.readline()
+            return ser.readline().decode("UTF-8")
         except Exception as e:
             print(e)
 
-        print(msg)
-        try:
-            print(msg.decode("UTF-8"))
-        except Exception as e:
-            print(e)
-    
+    def read_all():
+        start_time = time.time()
+        time_limit = 5
+        end_flag = False
+        timeout_flag = False
+        while(not end_flag and not timeout_flag):
+            msg = CommandHandler.read()
+            if msg == "\n" or msg == '':
+                end_flag = True
+            else:
+                start_time = time.time()
+            if time.time() - start_time == time_limit:
+                timeout_flag = True
+            print(msg)
+
     @staticmethod
     def test():
         print("WRITE> test")
         ser.write("test\n".encode("UTF-8"))
         time.sleep(1)
-        CommandHandler.read()
+        CommandHandler.read_all()
 
 class ValidCommands(Enum):
     QUIT = 0
@@ -101,7 +110,7 @@ class ValidCommands(Enum):
     
 CommandHandler.switch = {
     "WRITE": CommandHandler.write,
-    "READ": CommandHandler.read,
+    "READ": CommandHandler.read_all,
     "TEST": CommandHandler.test,
     "QUIT" : safe_quit
 }

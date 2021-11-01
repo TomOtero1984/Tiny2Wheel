@@ -5,7 +5,7 @@
 #define MIDDLE 1500
 #define RIGHT 1000
 
-// Declarations
+
 void setup();
 void loop();
 void serial_delay();
@@ -16,21 +16,25 @@ void clear_message();
 void motor_position(char pos, int drive_time);
 void motor_drive(int drive_time, int time_high, int time_low);
 void motor_test();
+void clean_message();
 
-    // Globals
-    bool WRITE_FLAG = false;
+bool WRITE_FLAG = false;
 const int MAX_SERIAL_READ = 64;
 char message[MAX_SERIAL_READ] = {'\0'};
 int message_index = 0;
 
-
-// Definitions
+// Arduino 
 void setup() {
     pinMode(MOTOR_PIN, OUTPUT);
     Serial.begin(115200);
 }
 
 void loop() {
+    if(!Serial){
+        while(!Serial);
+        Serial.println("Arduino Connected");
+        delay(2000);
+    }
     serial_read();
     if(WRITE_FLAG) {
         serial_write();
@@ -49,7 +53,7 @@ void serial_read() {
     if(Serial.available()){
         while(true){
             ser_in = Serial.read();
-            if (ser_in == '\n') break;
+            if (ser_in == '\n' || ser_in == '\0' || ser_in == '\r') break;
             message[message_index] = ser_in;
             message_index++;
             serial_delay();
@@ -63,15 +67,27 @@ void serial_write() {
     for (int i=0; i < message_index; i++){
         ser_out = message[i];
         Serial.print(ser_out);
-        if (ser_out == '\n' || ser_out == '\0') break;
+        if (ser_out == '\n' || ser_out == '\0' || ser_out == '\r') break;
     }
     Serial.print('\n');
     WRITE_FLAG = false;
 }
 
 // Message Functions
+void clean_message() {
+    char c;
+    for (int i=0; i < message_index; i++) {
+        c = message[i];
+        if (c == '\n' || c == '\0' || c == '\r') {
+            message[i] = '\0';
+        }
+    }
+}
+
 void check_message(){
     int drive_time = 100;
+    clean_message();
+    Serial.println(message);
     if (strcmp(message, "stop") == 0) {
         // TODO: add stop function
     }
@@ -91,11 +107,13 @@ void check_message(){
         motor_position('l', drive_time);
     }
     else if (strcmp(message, "test") == 0) {
-        Serial.print("Motor Test Script");
+        Serial.print("Motor Test Script\n");
         motor_test();
     }
     else {
-        Serial.println("[ERROR] Unknown command!");
+        char msg[64];
+        sprintf(msg, "[ERROR] Unknown command: %s", message);
+        Serial.println(msg);
     }
 }
 
@@ -122,8 +140,9 @@ void motor_position(char pos, int drive_time) {
         time_high = LEFT;
     }
     else {
-        Serial.println("[ERROR] Motor Position Error!");
-        return;
+        char msg[64];
+        sprintf(msg, "[ERROR] Unknown command: %s", message);
+        Serial.println(msg);
     }
     int time_low = time_total - time_high;
     motor_drive(drive_time, time_high, time_low);

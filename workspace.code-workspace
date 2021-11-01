@@ -10,5 +10,19 @@
 			"path": "cli"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"algorithm": "cpp",
+			"xutility": "cpp",
+			"string": "cpp",
+			"atomic": "cpp",
+			"execution": "cpp",
+			"fstream": "cpp",
+			"istream": "cpp",
+			"list": "cpp",
+			"ostream": "cpp",
+			"random": "cpp",
+			"*.ipp": "cpp"
+		}
+	}
 }

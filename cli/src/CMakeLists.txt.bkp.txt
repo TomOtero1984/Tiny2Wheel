@@ -1,0 +1,18 @@
+include_directories(../include)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
+set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc)
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++)
+set(CMAKE_RC_COMPILER ${TOOLCHAIN_PREFIX}-windres)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+set(BOOST_INCLUDE_DIRS $ENV{BOOST_ROOT})
+set(BOOST_LIBRARIES ${CMAKE_LIBRARY_PATH} $ENV{BOOST_ROOT}/stage/lib)
+
+add_executable(Tiny2Wheel_cli main.cpp AsyncSerial.cpp BufferedAsyncSerial.cpp)
+target_include_directories(Tiny2Wheel_cli PRIVATE ${BOOST_INCLUDE_DIRS})
+target_link_libraries(Tiny2Wheel_cli ${BOOST_LIBRARIES} ws2_32)
