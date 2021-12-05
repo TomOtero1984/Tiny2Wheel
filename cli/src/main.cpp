@@ -9,16 +9,11 @@
 #include "async_serial.hpp"
 
 
-void async_read(AsyncSerial& async_serial)
-{
-    async_serial.async_read();
-}
-
 void get_usr_input(std::string& usr_in)
 {
-    std::cout << "> ";
+    std::cout << "\n> ";
     std::cin >> usr_in;
-    std::cout << "usr_in: " << usr_in << std::endl;
+    // std::cout << "[DEBUG] usr_in: " << usr_in << std::endl;
 }
 
 void handle_usr_input(std::string& usr_in, AsyncSerial& async_serial)
@@ -28,14 +23,12 @@ void handle_usr_input(std::string& usr_in, AsyncSerial& async_serial)
     {
         exit(EXIT_SUCCESS);
     }
-    else if (usr_in == "test"){
-        async_serial.async_write("test\n");
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-
+    else if (usr_in == "read\n"){
+        return;
     }
     else {
         std::cout << "Sending: " << usr_in << std::endl;
-        async_serial.async_write(usr_in);
+        async_serial.write(usr_in);
     }
 }
 
@@ -43,17 +36,6 @@ void clear_usr_input(std::string& usr_input)
 {
     usr_input.clear();
 }
-
-// void command_loop(AsyncSerial& async_serial)
-// {
-//     std::string usr_in;
-//     bool loop = true;
-//     while(loop) {
-//         get_usr_input(usr_in);
-//         handle_usr_input(usr_in, async_serial);
-//         clear_usr_input(usr_in);
-//     }
-// }
 
 void debug_print(std::string msg)
 {
@@ -73,61 +55,49 @@ int main(int argc, char *argv[]) {
     std::cout << "port: " << port << std::endl;
     std::cout << "baud: " << baud << std::endl;
 
-    // Initializing io_context and serial_port 
+    // IO executor for serial port 
     asio::io_context io_context;
-    AsyncSerial async_serial(port, baud, io_context);
+   
+    // Buffer for async read/write
+    std::string data_str;
+    void *data = &data_str;
+    asio::mutable_buffer buffer(data, 256);
 
-    // Buffer
-    async_serial.buffer.prepare(256);
+    // Serial object 
+    AsyncSerial async_serial(port, baud, io_context, buffer);
+    async_serial.open();
 
-    bool reading = false;
-    bool sending = false;
-    std::string usr_in;
-    std::thread t;
     try
     {  
-        async_serial.async_read();
+        // Read buffer
+        async_serial.read();
         io_context.run();
+
+        std::string usr_in;
         // Main Loop
         while(true)
         {
-
-            // debug_print("[bool reading] " + std::to_string(reading));
-            // debug_print("[read] " + std::to_string(async_serial.buffer.size()));
-            // if (async_serial.buffer.size() == 0 && reading == false)
+            // if (buffer.size() > 0)
             // {
-            //     reading = true;
-            //     std::cout << "Reading..." << std::endl;
-            //     t = std::thread(async_read, std::ref(async_serial));
-            //     t.detach();
+            //     std::cout << "Printing Buffer" << std::endl;
+            //     // reading = false;
+            //     async_serial.print_buffer(buffer);
+            //     buffer.consume(buffer.size());
             // }
-            // debug_print("[print] " + std::to_string(async_serial.buffer.size()));
-            if (async_serial.buffer.size() > 0)
-            {
-                std::cout << "Printing Buffer" << std::endl;
-                reading = false;
-                async_serial.print_buffer(async_serial.buffer);
-                async_serial.buffer.consume(async_serial.buffer.size());
-            }
-
-            if(!reading)
-            {
-                get_usr_input(usr_in);
-                handle_usr_input(usr_in, async_serial);
-                clear_usr_input(usr_in);
-            }
-
-            // if(reading)
-            // {
-            //     t.join();
-            // }
-
+            get_usr_input(usr_in);
+            handle_usr_input(usr_in, async_serial);
+            clear_usr_input(usr_in);
+            async_serial.read();
+            io_context.restart();
+            io_context.run();
         }
     }
     catch (std::system_error &e)
     {
+        async_serial.close();
         std::cout << "Error: " << e.what() << std::endl;
         return 1;
     }
+    async_serial.close();
     return 0;
 }
