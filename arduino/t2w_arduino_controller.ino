@@ -1,6 +1,8 @@
 #include "Arduino.h"
+#include "ArduinoJson.h"
 
-#define MOTOR_PIN 5
+#define MOTOR_PIN_1 5
+#define MOTOR_PIN_2 6
 #define LEFT 2000
 #define MIDDLE 1500
 #define RIGHT 1000
@@ -25,7 +27,8 @@ int message_index = 0;
 // Arduino
 void setup()
 {
-    pinMode(MOTOR_PIN, OUTPUT);
+    pinMode(MOTOR_PIN_1, OUTPUT);
+    pinMode(MOTOR_PIN_2, OUTPUT);
     Serial.begin(115200);
 }
 
@@ -130,7 +133,7 @@ void check_message()
     }
     else if (strcmp(message, "middle") == 0)
     {
-        Serial.print("Moving middle");
+        Serial.print("Moving Middle");
         motor_position('m', drive_time);
     }
     else if (strcmp(message, "left") == 0)
@@ -160,7 +163,13 @@ void clear_message()
     message_index = 0;
 }
 
+//
 // Motor Functions
+//
+/*
+Drives motor to specified position.
+Valid positions: 'r', 'l', 'm'
+*/
 void motor_position(char pos, int drive_time)
 {
     int time_total = 20000;
@@ -184,24 +193,48 @@ void motor_position(char pos, int drive_time)
         Serial.println(msg);
     }
     int time_low = time_total - time_high;
-    motor_drive(drive_time, time_high, time_low);
+    // motor_drive(drive_time, time_high, time_low);
 }
 
-void motor_drive(int drive_time, int time_high, int time_low)
+/*
+Drives the motor
+*/
+void motor_drive(String motor_name, int drive_time, int time_high, int time_low)
 {
+    // Determine which motor to drive
+    int motor_pin = motor_select(motor_name);
+    // Start driving motor
     int time_start = millis();
     while (millis() - time_start < drive_time)
     {
-        digitalWrite(MOTOR_PIN, HIGH);
+        digitalWrite(motor_pin, HIGH);
         delayMicroseconds(time_high);
-        digitalWrite(MOTOR_PIN, LOW);
+        digitalWrite(motor_pin, LOW);
         delayMicroseconds(time_low);
     }
 }
 
+/*
+test script
+*/
 void motor_test()
 {
     motor_position('l', 500);
     motor_position('r', 500);
     motor_position('m', 500);
+}
+
+/*
+Parse motor_name to determine the motor pin to use
+*/
+int motor_select(String motor_name)
+{
+    int motor_pin = 0;
+    if(motor_name == "m1"){
+        motor_pin = MOTOR_PIN_1;
+    }
+    else if(motor_name == "m2"){
+        motor_pin = MOTOR_PIN_2;
+    }
+    return motor_pin;
 }

@@ -3,3 +3,6 @@
 	path = arduino/Arduino-CMake-NG
 	url = git@github.com:arduino-cmake/Arduino-CMake-NG.git
 
+[submodule "arduino/ArduinoJson"]
+	path = arduino/ArduinoJson
+	url = https://github.com/bblanchon/ArduinoJson.git
